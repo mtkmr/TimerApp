@@ -7,52 +7,39 @@
 
 import UIKit
 
+
+
 final class TimerViewController: UIViewController {
-
-    private var isRunning: Bool = false
-
-    //状態を保存する
+    //MARK: - Properties
+    //状態
+    enum State {
+        case invalidate
+        case progress
+        case pause
+    }
     private var state: State = .invalidate
     //タイマー
     private weak var timer: Timer?
     //残り時間
     private var timeLeft: Int = 60
-
+    //残り時間の文字列化
     private var _timeLeft: String {
         return String(format: "%02d:%02d", timeLeft / 60, timeLeft % 60)
     }
-
+    //ピッカーに表示する秒数
     private let timeList: [Int] = [60, 180, 300, 600]
-    //選択されたピッカーの行
+    //選択されているピッカーの行
     private var selectedRow: Int = 0
 
-
-    private lazy var textField: UITextField = {
-        let textField = UITextField()
-        textField.text = "\(timeList[0] / 60)分"
-        textField.backgroundColor = .white
-        textField.layer.borderWidth = 1.0
-        textField.layer.borderColor = UIColor.label.cgColor
-        textField.layer.cornerRadius = 5
-        textField.textAlignment = .center
-
-        let pickerView = UIPickerView()
-        pickerView.delegate = self
-        pickerView.dataSource = self
-
-        let toolBar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-
-        let doneItem = UIBarButtonItem(
-            barButtonSystemItem: .done
-            , target: self,
-            action: #selector(done)
-        )
-        toolBar.setItems([doneItem], animated: true)
-
-        textField.inputView = pickerView
-        textField.inputAccessoryView = toolBar
-
-        return textField
+    //MARK: - Views
+    private lazy var pickerView: UIPickerView = {
+        let picker = UIPickerView()
+        picker.delegate = self
+        picker.dataSource = self
+        picker.backgroundColor = .clear
+        picker.tintColor = .white
+        picker.setValue(UIColor.white, forKey: "textColor")
+        return picker
     }()
 
     private let timerCirclePathView = TimerCirclePathView()
@@ -85,7 +72,7 @@ final class TimerViewController: UIViewController {
         let button = UIButton()
         button.setImage(UIImage(systemName: "clock.arrow.2.circlepath"), for: .normal)
         button.tintColor = .white
-        button.backgroundColor = .lightGray
+        button.backgroundColor = .darkGray
         button.addTarget(
             self,
             action: #selector(didTapResetButton(_:)),
@@ -94,10 +81,10 @@ final class TimerViewController: UIViewController {
         return button
     }()
 
-
+    //MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .black
         setupLayoutConstraints()
         timerCirclePathView.configureCirclePath(
             center: CGPoint(
@@ -116,6 +103,8 @@ final class TimerViewController: UIViewController {
         resetButton.layer.cornerRadius = resetButton.frame.size.height / 2
     }
 
+    //MARK: - Private Functions
+    ///timerの初期化
     private func initTimer() {
         timer = Timer.scheduledTimer(
             timeInterval: 1.0,
@@ -130,16 +119,16 @@ final class TimerViewController: UIViewController {
         //メインスレッドがbusyのとき、手動でスケジューリングが必要
         RunLoop.current.add(timer, forMode: .common)
     }
-
+    ///オートレイアウトの設定
     private func setupLayoutConstraints() {
 
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(textField)
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(pickerView)
         NSLayoutConstraint.activate([
-            textField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            textField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-            textField.heightAnchor.constraint(equalToConstant: 48)
+            pickerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            pickerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            pickerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            pickerView.heightAnchor.constraint(equalToConstant: 100)
         ])
 
         timerCirclePathView.translatesAutoresizingMaskIntoConstraints = false
@@ -170,14 +159,22 @@ final class TimerViewController: UIViewController {
         NSLayoutConstraint.activate([
             hStack.topAnchor.constraint(equalTo: timerCirclePathView.bottomAnchor, constant: 32),
             hStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            startButton.widthAnchor.constraint(equalToConstant: 40),
-            startButton.heightAnchor.constraint(equalToConstant: 40),
-            resetButton.widthAnchor.constraint(equalToConstant: 40),
-            resetButton.heightAnchor.constraint(equalToConstant: 40)
+            startButton.widthAnchor.constraint(equalToConstant: 60),
+            startButton.heightAnchor.constraint(equalToConstant: 60),
+            resetButton.widthAnchor.constraint(equalToConstant: 60),
+            resetButton.heightAnchor.constraint(equalToConstant: 60)
         ])
+    }
 
-
-
+    func updateUI(state: State) {
+        switch state {
+        case .invalidate, .pause:
+            startButton.setImage(UIImage(systemName: "restart"), for: .normal)
+            startButton.backgroundColor = .systemRed
+        case .progress:
+            startButton.setImage(UIImage(systemName: "stop"), for: .normal)
+            startButton.backgroundColor = .systemBlue
+        }
     }
 
 }
@@ -191,14 +188,14 @@ extension TimerViewController: UIPickerViewDelegate {
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         //値の保存
-        timeLeft = timeList[row]
         selectedRow = row
+        timeLeft = timeList[selectedRow]
         //更新
-        textField.text = "\(timeList[row] / 60)分"
+        state = .invalidate
+        updateUI(state: state)
         timerLabel.text = _timeLeft
-
+        timerCirclePathView.resetAnimation()
     }
-
 }
 
 //MARK: - UIPickerViewDataSource
@@ -211,80 +208,60 @@ extension TimerViewController: UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return timeList.count
     }
-
 }
 
 //MARK: - @objc Private Extension
 @objc
 private extension TimerViewController {
-
+    ///timerを発火させる
     func fireTimer() {
         timeLeft -= 1
         timerLabel.text = _timeLeft
         if timeLeft <= 0 {
+            state = .invalidate
             timer?.invalidate()
             timer = nil
+            updateUI(state: state)
             timeLeft = timeList[selectedRow]
-            state = .invalidate
-            startButton.setImage(UIImage(systemName: "restart"), for: .normal)
-            startButton.backgroundColor = .red
-            timerCirclePathView.reset()
+            timerCirclePathView.resetAnimation()
         }
     }
 
-
+    ///startButtonがタップされたとき
     func didTapStartButton(_ sender: UIButton) {
-
         switch state {
-
         case .invalidate:
             state = .progress
-            startButton.setImage(UIImage(systemName: "stop"), for: .normal)
-            startButton.backgroundColor = .blue
+            updateUI(state: state)
             //timer start
             initTimer()
             timerCirclePathView.startAnimation(Double(timeLeft))
         case .pause:
             state = .progress
-            startButton.setImage(UIImage(systemName: "stop"), for: .normal)
-            startButton.backgroundColor = .blue
+            updateUI(state: state)
             //timer restart
             initTimer()
             timerCirclePathView.resumeAnimation()
         case .progress:
             state = .pause
-            startButton.setImage(UIImage(systemName: "restart"), for: .normal)
-            startButton.backgroundColor = .red
+            updateUI(state: state)
             //timer stop
             guard let timer = timer else { return }
             timer.invalidate()
             timerCirclePathView.pauseAnimation()
-
         }
     }
 
+    ///resetButtonがタップされたとき
     func didTapResetButton(_ sender: UIButton) {
-        guard
-            let timer = timer
-        else {
-            state = .invalidate
-            timerCirclePathView.reset()
-            startButton.setImage(UIImage(systemName: "restart"), for: .normal)
-            startButton.backgroundColor = .red
-            timeLeft = timeList[selectedRow]
-            timerLabel.text = _timeLeft
-            return
-        }
-        timer.invalidate()
         state = .invalidate
-        timerCirclePathView.reset()
-        startButton.setImage(UIImage(systemName: "restart"), for: .normal)
-        startButton.backgroundColor = .red
+        timerCirclePathView.resetAnimation()
+        updateUI(state: state)
         timeLeft = timeList[selectedRow]
         timerLabel.text = _timeLeft
+
+        guard let timer = timer else { return }
+        timer.invalidate()
     }
 
-    func done() {
-        textField.endEditing(true)
-    }
 }

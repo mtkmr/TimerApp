@@ -13,7 +13,6 @@
 		8C266C812700B4510023FBA1 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C266C802700B4510023FBA1 /* TabBarController.swift */; };
 		8C266C832700B49D0023FBA1 /* TimerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C266C822700B49D0023FBA1 /* TimerViewController.swift */; };
 		8C266C852700B72C0023FBA1 /* TimerCirclePathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C266C842700B72C0023FBA1 /* TimerCirclePathView.swift */; };
-		8C266C872701EDFD0023FBA1 /* Timer.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C266C862701EDFD0023FBA1 /* Timer.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,7 +24,6 @@
 		8C266C802700B4510023FBA1 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		8C266C822700B49D0023FBA1 /* TimerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerViewController.swift; sourceTree = "<group>"; };
 		8C266C842700B72C0023FBA1 /* TimerCirclePathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerCirclePathView.swift; sourceTree = "<group>"; };
-		8C266C862701EDFD0023FBA1 /* Timer.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Timer.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,7 +63,6 @@
 				8C266C802700B4510023FBA1 /* TabBarController.swift */,
 				8C266C822700B49D0023FBA1 /* TimerViewController.swift */,
 				8C266C842700B72C0023FBA1 /* TimerCirclePathView.swift */,
-				8C266C862701EDFD0023FBA1 /* Timer.storyboard */,
 			);
 			path = TimerApp;
 			sourceTree = "<group>";
@@ -128,7 +125,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C266C792700B3EF0023FBA1 /* LaunchScreen.storyboard in Resources */,
-				8C266C872701EDFD0023FBA1 /* Timer.storyboard in Resources */,
 				8C266C762700B3EF0023FBA1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

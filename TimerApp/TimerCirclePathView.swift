@@ -7,18 +7,12 @@
 
 import UIKit
 
-enum State {
-    case invalidate
-    case progress
-    case pause
-}
-
 final class TimerCirclePathView: UIView {
 
     private lazy var progressShapeLayer: CAShapeLayer = {
         let shapeLayer = CAShapeLayer()
         shapeLayer.lineWidth = 10
-        shapeLayer.strokeColor = UIColor.orange.cgColor
+        shapeLayer.strokeColor = UIColor.systemOrange.cgColor
         shapeLayer.fillColor = UIColor.clear.cgColor
         shapeLayer.lineCap = .round
         shapeLayer.strokeStart = 0
@@ -28,20 +22,15 @@ final class TimerCirclePathView: UIView {
 
     private lazy var backgroundShapeLayer: CAShapeLayer = {
         let shapeLayer = CAShapeLayer()
-        shapeLayer.lineWidth = 20
-        shapeLayer.strokeColor = UIColor.lightGray.cgColor
+        shapeLayer.lineWidth = 10
+        shapeLayer.strokeColor = UIColor.darkGray.cgColor
         shapeLayer.fillColor = UIColor.clear.cgColor
-        //影
-        shapeLayer.shadowOffset = CGSize(width:0, height:0)
-        shapeLayer.shadowRadius = 10
-        shapeLayer.shadowColor = UIColor.gray.cgColor
-        shapeLayer.shadowOpacity = 0.3
         return shapeLayer
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .gray
+        backgroundColor = .clear
     }
 
     required init?(coder: NSCoder) {
@@ -56,22 +45,19 @@ final class TimerCirclePathView: UIView {
             endAngle: endAngle,
             clockwise: clockwise
         )
-
-        //後ろの線の設定
+        //後ろの線のセット
         self.layer.addSublayer(backgroundShapeLayer)
         backgroundShapeLayer.path = circlePath.cgPath
-        //進行線の設定
+        //進行線のセット
         self.layer.addSublayer(progressShapeLayer)
         progressShapeLayer.path = circlePath.cgPath
     }
-
-
     
     func startAnimation(_ duration: Double) {
         let progressAnimation = CABasicAnimation(keyPath: "strokeEnd")
         progressAnimation.duration = duration
-        progressAnimation.fromValue = 0
-        progressAnimation.toValue = 1.0
+        progressAnimation.fromValue = 1.0
+        progressAnimation.toValue = 0
         progressAnimation.fillMode = .forwards
         progressAnimation.duration = duration
         progressAnimation.isRemovedOnCompletion = false
@@ -94,7 +80,7 @@ final class TimerCirclePathView: UIView {
         layer.beginTime = timeSincePause
     }
 
-    func reset() {
+    func resetAnimation() {
         layer.speed = 0
         layer.timeOffset = 0
     }
